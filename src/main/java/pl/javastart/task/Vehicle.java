@@ -74,8 +74,12 @@ public class Vehicle {
                 + ", przebieg pojazdu: " + vehicleMileage + "km" + ", numer VIN: " + vinNumber + ", typ pojazdu: " + printType();
     }
 
+    public String toCsv() {
+        return producer + "," + model + "," + yearProduction + "," + vehicleMileage + "," + vinNumber + "," + type;
+    }
+
     private String printType() {
-        String type = null;
+        String type;
         switch (getType()) {
             case CAR -> type = "samochód";
             case MOTORBIKE -> type = "motocykl";

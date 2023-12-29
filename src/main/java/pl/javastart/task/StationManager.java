@@ -24,26 +24,32 @@ public class StationManager {
             printOptions();
             int userChoice = readUserChoice();
             switch (userChoice) {
-                case EXIT -> {
-                    if (vehicles.isEmpty()) {
-                        shouldContinue = false;
-                        clearFile(fileName);
-                    } else {
-                        writeQueueToFile("vehicles.txt");
-                        shouldContinue = false;
-                    }
-                }
+                case EXIT -> shouldContinue = determineFileWritingAction(fileName);
                 case ADD_VEHICLE -> vehicles.offer(readAndCreateVehicle());
-                case PERFORM_VEHICLE_INSPECTION -> {
-                    if (!vehicles.isEmpty()) {
-                        performVehicleInspection(fileName);
-                    } else {
-                        System.out.println("Brak pojazdu w kolejce do przeglądu");
-                    }
-                }
+                case PERFORM_VEHICLE_INSPECTION -> performVehicleInspectionIfQueueNotEmpty(fileName);
                 default -> System.out.println("Wybrałeś nieprawidłową opcją");
             }
         }
+    }
+
+    private void performVehicleInspectionIfQueueNotEmpty(String fileName) throws IOException {
+        if (!vehicles.isEmpty()) {
+            performVehicleInspection(fileName);
+        } else {
+            System.out.println("Brak pojazdu w kolejce do przeglądu");
+        }
+    }
+
+    private boolean determineFileWritingAction(String fileName) throws IOException {
+        boolean shouldContinue;
+        if (vehicles.isEmpty()) {
+            shouldContinue = false;
+            clearFile(fileName);
+        } else {
+            writeQueueToFile("vehicles.txt");
+            shouldContinue = false;
+        }
+        return shouldContinue;
     }
 
     public void writeQueueToFile(String fileName) throws IOException {
@@ -51,8 +57,7 @@ public class StationManager {
         try (FileWriter fileWriter = new FileWriter(fileName);
              BufferedWriter writer = new BufferedWriter(fileWriter);) {
             for (Vehicle vehicle : vehicles) {
-                writer.write(vehicle.getProducer() + "," + vehicle.getModel() + "," + vehicle.getYearProduction() + ","
-                        + vehicle.getVehicleMileage() + "," + vehicle.getVinNumber() + "," + vehicle.getType());
+                writer.write(vehicle.toCsv());
                 writer.newLine();
             }
         }
